@@ -1,10 +1,7 @@
-
 #include "headers.h"
 
-
-
 eVertice* emptyToArray(tree* ptr, eVertice* eV) {
-	//dodanie wskaznika na pusty weze; do tablicy pustych wezlow
+	//adding a pointer which points to an empty node to an empty node array
 	if (eV->count == eV->tab_size)
 	{
 		tree** tempTab = (tree**)realloc(eV->tab, eV->tab_size * 2 * sizeof(tree*));
@@ -66,7 +63,7 @@ tree* backToParent(tree* t) {
 }
 
 tree* moveToEnd(tree* t) {
-	//przejscie na koniec drzewa
+	//moving at the end of tree
 	tree* ptr = t;
 	while (ptr->sibling != NULL)
 		ptr = ptr->sibling;
@@ -80,7 +77,7 @@ int readNumber(char* temp) {
 	temp2 = getchar();
 	if (!((int)temp2 > 47 && (int)temp2 < 58))
 	{
-		//nastepny znak juz nie jest cyfra
+		//next char is not a digit
 		int x = *temp - '0';
 		*temp = temp2;
 		return x;
@@ -102,7 +99,7 @@ int** checkArrSpace(int** arr, int leavesCount, int* tabSize) {
 }
 
 int* readTrees(tree* t, bool first, int* emptyVertices, eVertice* eV, int* leavesCount) {
-	//wczytywanie drzewa
+	//loading a tree
 	if (first == true)
 		getchar();
 	char temp = getchar();
@@ -115,17 +112,17 @@ int* readTrees(tree* t, bool first, int* emptyVertices, eVertice* eV, int* leave
 	int* valueVertices = (int*)malloc(INIT_TREE_SIZE * sizeof(int));
 	while (temp != EOF && temp != '\n') {
 		/*
-		( -> dodanie pustego node'a, dodajSyna
-		cyfra po ( -> dodanie node'a z wartoœci¹ poni¿ej pustego node'a (
-		, -> dodaj brata, bez pustego node'a
-		) -> cofnij siê do parenta
+		( -> add an empty node, addSon
+		digit after ( -> add a node with a value (under an empty node)
+		(, -> add a sibling, no empty node
+		) -> go back to parent
 		*/
 		if (i != 0 && prev == '(' && temp == '(') {
 			t = addSon(t, false, NULL, &counter, eV);
 		}
 		else if (i != 0 && prev == '(' && (int)temp > 47 && (int)temp < 58)
 		{
-			//dodajSyna (pusty node)
+			//addSon (empty node)
 			int value = readNumber(&temp);
 			t = addSon(t, true, value, &counter, eV);
 			(*leavesCount)++;
@@ -136,7 +133,7 @@ int* readTrees(tree* t, bool first, int* emptyVertices, eVertice* eV, int* leave
 				backFlag = true;
 		}
 		else if (prev == ',' && (int)temp > 47 && (int)temp < 58) {
-			//dodaj brata
+			//add a sibling
 			int value = readNumber(&temp);
 			t = addSibling(t, false, value, &counter, eV);
 			(*leavesCount)++;
@@ -147,7 +144,7 @@ int* readTrees(tree* t, bool first, int* emptyVertices, eVertice* eV, int* leave
 				backFlag = true;
 		}
 		else if (temp == '(' && prev == ',') {
-			//pusty node jako brat
+			//empty node as a sibling
 			t = addSibling(t, true, NULL, &counter, eV);
 		}
 		else if (temp == ')') {
@@ -173,7 +170,7 @@ int* readTrees(tree* t, bool first, int* emptyVertices, eVertice* eV, int* leave
 }
 
 int compareValue(int** mainTab, int valX, int valY, int lCount1, int lCount2) {
-	//porownanie dwoch wartosci w tabelce (gdy przynajmniej jedna >0)
+	//comparing two values in a table (if at least one is larger than 0)
 	if (valX > 0 && valY > 0) {
 		if (valX == valY)
 			return 1;
@@ -213,7 +210,7 @@ int compareValue(int** mainTab, int valX, int valY, int lCount1, int lCount2) {
 
 int check(int* permTab, int n, int* valX, int* valY, int wX, int wY)
 {
-	//sprawdzenie czy kombinacja jedynek przecina sie w pionie lub w poziomie
+	//checking if a combination of ones intersects vertically or horizontally
 	int* actualInd = (int*)malloc(n * sizeof(int));
 	int z = 0;
 	for (int i = 0; i < n; i++)
@@ -229,10 +226,10 @@ int check(int* permTab, int n, int* valX, int* valY, int wX, int wY)
 	for (int i = 0; i < n; i++) {
 		if (permTab[i] == 1)
 		{
-			//sprawdzam czy sie gdziekolwiek przecina w pionie i w poziomie z innym elementem
-			//najpierw w osi X
-			//od lewej
-			//>0 bo 0 to legenda!
+			//check if it intersects with another element vertically or horizontally
+			//starting from X axis
+			//from left to right
+			//>0, 0 is a legend
 			for (int j = 1; j < wX; j++) {
 				z = 0;
 				//Y = valY[i] X = valX[i]
@@ -250,7 +247,6 @@ int check(int* permTab, int n, int* valX, int* valY, int wX, int wY)
 			if (fail == false) {
 				for (int j = 1; j < wY; j++) {
 					z = 0;
-					//Y = valY[i] X = valX[i]
 					while (z < n) {
 						if (valX[actualInd[z]] == valX[i] && valY[actualInd[z]] != valY[i])
 						{
@@ -276,13 +272,13 @@ int check(int* permTab, int n, int* valX, int* valY, int wX, int wY)
 
 void permutations(int* permTab, int* valX, int* valY, int** compareTab, int n, int i, int* out, int wX, int wY)
 {
-	//generowanie wszystkich mozliwych kombinacji 0 i 1
+	//recursively generating every possible combination of 0 and 1
 	if (i == n)
 	{
 		if (check(permTab, n, valX, valY, wX, wY) == 1)
 		{
-			//jezeli jest ok: dodaj sume wszystkich wartosci pol
-			//potem porownaj z poprzednia najwieksza
+			//if it's ok: add a sum of every value
+			//then compare it with a previous largest
 			int suma = 0;
 			for (int x = 0; x < n; x++)
 			{
@@ -301,7 +297,7 @@ void permutations(int* permTab, int* valX, int* valY, int** compareTab, int n, i
 }
 
 int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2, int v1, int v2) {
-	//stworzenie tabelki porownawczej - gdy oba wierzcholki <=0
+	//create a comparison table - if both vertices <=0 
 	//V1 - X V2 - Y
 	int ind = -v1;
 	int i = 0;
@@ -323,7 +319,7 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 		tempTab[j] = (int*)malloc((x + 1) * sizeof(int));
 	}
 
-	//wypelnienie legendy tabelki
+	//filling the legend of a table
 	ind = -v1;
 	i = 1;
 	curr = eV1->tab[ind]->son;
@@ -347,7 +343,7 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 	int* valX = (int*)malloc(defSize * sizeof(int));
 	int* valY = (int*)malloc(defSize * sizeof(int));
 	int count = 0;
-	//porownywanie - wypelnienie tabelki
+	//comparing - filling a table
 	for (i = 1; i < y + 1; i++) {
 		for (int j = 1; j < x + 1; j++) {
 			if (tempTab[i][0] <= 0 && tempTab[0][j] <= 0) {
@@ -391,14 +387,14 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 			}
 		}
 	}
-	//najlepsza kombinacja 0 i 1 w tabelce
+	//best combination of 0 and 1 in a table
 	int out = 0;
 	int* permTab = (int*)malloc(count * sizeof(int));
 	for (int j = 0; j < count; j++)
 		permTab[j] = 0;
 	permutations(permTab, valX, valY, tempTab, count, 0, &out, x + 1, y + 1);
 
-	//out = obecne maximum
+	//out = current max
 
 	/*
 	  y(v1)
@@ -406,7 +402,7 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 	x(v2)
 	*/
 
-	//porownanie po y
+	//comparing Y-axis
 	int val;
 	for (int j = 1; j < y + 1; j++) {
 		if (v1 <= 0 && tempTab[j][0] <= 0) {
@@ -426,7 +422,7 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 		}
 	}
 
-	//porównanie po x
+	//comparing X-axis
 	for (int j = 1; j < x + 1; j++) {
 		if (v2 <= 0 && tempTab[0][j] <= 0) {
 			if (tab[lCount2 + 1 - v2][1 + lCount1 - tempTab[0][j]] == -1)
@@ -456,7 +452,7 @@ int compareTab(int** tab, eVertice* eV1, eVertice* eV2, int lCount1, int lCount2
 }
 
 int addExistingV(int** tab, int y, int x, int val, bool ifY, int lTotal) {
-	//dodanie wartosci synow istniejacego wierzcholka do tabeli synow obecnego wierzcholka 
+	//adding values of existing node's children to a table of current vertice's child
 	int existingPos = lTotal - val;
 	if (ifY == true) {
 		for (int i = 1; i < lTotal + 1; i++) {
@@ -474,7 +470,7 @@ int addExistingV(int** tab, int y, int x, int val, bool ifY, int lTotal) {
 }
 
 int addToTab(int** tab, int y, int x, int val, bool ifY, int leavesCount) {
-	//dodawanie wartosci do tabeli wierzcholka
+	//adding values to a vertice's table
 	if (ifY == true) {
 		for (int i = 1; i < leavesCount + 2; i++) {
 			if (tab[i][0] == val)
@@ -491,7 +487,7 @@ int addToTab(int** tab, int y, int x, int val, bool ifY, int leavesCount) {
 }
 
 int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY) {
-	//wypelnienie tabelki synow pustego wierzcholka
+	//filling a table of empty vertice's children
 	int currVInd;
 	if (ifY)
 		currVInd = eVTabInd - lC2;
@@ -501,8 +497,8 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 	if (currVInd == 0)
 	{
 		for (int j = 1; j < (ifY ? lC2 + 1 : lC1 + 1); j++) {
-			//iteracja po y: tab[j][0] -> odpowiedni 
-			//odpowiedni vertice - eV->tab[currVInd]
+			//iterating y-axis: tab[j][0] -> fits 
+			//fitting vertice - eV->tab[currVInd]
 			if (ifY == true)
 				tab[j][eVTabInd] = 1;
 			else
@@ -511,10 +507,10 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 		}
 	}
 	else {
-		//szukanie synow
+		//searching for sons
 		curr = eV->tab[currVInd]->son;
 		if (curr->value > 0) {
-			//dodaj do tablicy i sprawdz dalej
+			//add to an array and keep searching
 			if (ifY == true)
 				addToTab(tab, NULL, eVTabInd, curr->value, true, lC2);
 			else
@@ -522,14 +518,14 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 			while (curr->sibling != NULL) {
 				curr = curr->sibling;
 				if (curr->value > 0) {
-					//dodaj do tablicy
+					//add to an array
 					if (ifY == true)
 						addToTab(tab, NULL, eVTabInd, curr->value, true, lC2);
 					else
 						addToTab(tab, eVTabInd, NULL, curr->value, false, lC1);
 				}
 				else {
-					//dodaj do tablicy synow istniejacego wezla
+					//add to an existing node's children array
 					if (ifY == true)
 						addExistingV(tab, NULL, eVTabInd, curr->value, true, lC2);
 					else
@@ -538,7 +534,7 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 			}
 		}
 		else {
-			//dodaj do tablicy synow istniejacego wezla
+			//add to an array of existing node's children
 			if (ifY == true)
 				addExistingV(tab, NULL, eVTabInd, curr->value, true, lC2);
 			else
@@ -546,14 +542,14 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 			while (curr->sibling != NULL) {
 				curr = curr->sibling;
 				if (curr->value > 0) {
-					//dodaj do tablicy
+					//add to an array
 					if (ifY == true)
 						addToTab(tab, NULL, eVTabInd, curr->value, true, lC2);
 					else
 						addToTab(tab, eVTabInd, NULL, curr->value, false, lC1);
 				}
 				else {
-					//dodaj do tablicy synow istniejacego wezla
+					//add to an array of existing node's children
 					if (ifY == true)
 						addExistingV(tab, NULL, eVTabInd, curr->value, true, lC2);
 					else
@@ -567,10 +563,10 @@ int checkSons(int** tab, eVertice* eV, int eVTabInd, int lC1, int lC2, bool ifY)
 
 int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVertice* empty1, eVertice* empty2, int leavesCount1, int leavesCount2) {
 	/*
-	X->LEGENDA 1 + LISCIE 1 + WIERZCHOLKI 1
-	Y->LEGENDA 2 + LISCIE 2 + WIERZCHOLKI 2
+	X->LEGEND 1 + LEAVES 1 + VERTICES 1
+	Y->LEGEND 2 + LEAVES 2 + VERTICES 2
 	*/
-	//TABELA LIŒCI NR.1
+	//TABLE OF LEAVS NO. 1
 	int x = 1 + leavesCount1 + emptyCount1;
 	int y = 1 + leavesCount2 + emptyCount2;
 	int** tab = (int**)malloc(y * sizeof(int*)); //Y
@@ -581,12 +577,12 @@ int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVer
 	for (int i = 0; i < y; i++)
 		for (int j = 0; j < x; j++)
 			tab[i][j] = 0;
-	//uzupelnienie legend
-	//X - DRUGI WYMIAR
-	//Y - PIERWSZY WYMIAR
+	//filling legends
+	//X - SECOND DIMENSION
+	//Y - FIRST DIMENSION
 	//tab[y][x]
 
-	//LEGENDA Y
+	//Y LEGEND
 	for (int i = 1, j = 0; i < y; i++) {
 		if (i < leavesCount2 + 1)
 			tab[i][0] = leaves2[i - 1];
@@ -597,7 +593,7 @@ int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVer
 		}
 	}
 
-	//LEGENDA X
+	//X LEGEND
 	for (int i = 1, j = 0; i < x; i++) {
 		if (i < leavesCount1 + 1)
 			tab[0][i] = leaves1[i - 1];
@@ -608,7 +604,7 @@ int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVer
 		}
 	}
 
-	//wypelnienie zerami i jedynkami tabelki nr 1
+	//filling out a first table with ones and zeros
 
 	for (int i = 1; i < leavesCount2 + 1; i++) { //y
 		for (int j = 1; j < leavesCount1 + 1; j++) { //x
@@ -619,19 +615,19 @@ int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVer
 		}
 	}
 
-	//wypelnianie tabelki nr 2
+	//filling out a no. 2 table
 	for (int i = y - 1; i > leavesCount2; i--) {
 		checkSons(tab, empty2, i, leavesCount1 + 1, leavesCount1 + 1, false);
 	}
 	for (int i = x - 1; i > leavesCount1; i--) {
 		checkSons(tab, empty1, i, leavesCount1 + 1, leavesCount2 + 1, true);
 	}
-	//wypelnienie tabeli 4 z -1
+	//filling out a 4th table with '-1'
 	for (int i = leavesCount2 + 1; i < y; i++) {
 		for (int j = leavesCount1 + 1; j < x; j++)
 			tab[i][j] = -1;
 	}
-	//wypisywanie tabeli 1,2,3
+	//printing out 1,2,3 tables
 	/*for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++)
 					printf("%d ", tab[i][j]);
@@ -650,7 +646,7 @@ int makeTable(int emptyCount1, int emptyCount2, int* leaves1, int* leaves2, eVer
 		b = emptyCount1 - 1;
 		a--;
 	}
-	//wypisywanie tabelki 4.
+	//printing out a 4th table
 	/*for (int i = 11; i < y; i++) {
 			for (int j = 11; j < x; j++)
 					printf("%d ", tab[i][j]);

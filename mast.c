@@ -10,7 +10,7 @@ int main() {
 	int n; //number of problems
 	scanf("%d", &n);
 
-	//stworzenie tablic wezlow
+	//creating an array of nodes
 	eVertice* empty = (eVertice*)malloc(n * sizeof(eVertice));
 	for (int i = 0; i < n; i++) {
 		empty[i].tab = (tree**)malloc(INIT_SIZE * sizeof(tree*));
@@ -21,8 +21,8 @@ int main() {
 		empty[i].count = 0;
 		empty[i].tab_size = INIT_SIZE;
 	}
-
-	tree* tTab = (tree*)malloc(n * sizeof(tree)); //INICJALIZACJA TABLICY DRZEW
+	//initialization of the main tree array
+	tree* tTab = (tree*)malloc(n * sizeof(tree));
 	for (int i = 0; i < n; i++) {
 		(tTab + i)->parent = NULL;
 		(tTab + i)->son = NULL;
