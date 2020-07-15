@@ -7,7 +7,9 @@
 #include "headers.h"
 
 int main() {
+	printf("MAXIMUM AGREEMENT SUBTREE PROBLEM SOLVER \nAuthor: Jakub Ochnik\n\n");
 	int n; //number of problems
+	printf("Enter a number of trees:\n");
 	scanf("%d", &n);
 
 	//creating an array of nodes
@@ -39,13 +41,16 @@ int main() {
 	int** leaves = (int**)malloc(n * sizeof(int*));
 	for (int i = 0; i < n; i++)
 	{
+		printf("Enter a %d. tree in a Newick format:\n",i);
 		if (i == 0)
 			leaves[i] = readTrees(tTab + i, true, emptyCount, empty, leavesCount);
 		else
 			leaves[i] = readTrees(tTab + i, false, emptyCount + i, empty + i, leavesCount + i);
 	}
+	printf("\n\t--RESULTS--\n");
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++) {
+			printf("Trees %d - %d\n", i, j);
 			int result = makeTable(emptyCount[i], emptyCount[j], leaves[i], leaves[j], &empty[i], &empty[j], leavesCount[i], leavesCount[j]);
 			printf("%d\n", result);
 		}
